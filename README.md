@@ -24,3 +24,10 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 ## preview
 
 ![div](https://user-images.githubusercontent.com/4559753/37556223-d1236a46-2a2d-11e8-814a-e1baba8bcd84.gif)
+
+
+
+
+# 中文说明
+
+一个让div可以在父元素内随意移动、缩放的VUE组件。
