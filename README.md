@@ -23,8 +23,9 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 
 ## preview
 
-![div](https://user-images.githubusercontent.com/4559753/37556223-d1236a46-2a2d-11e8-814a-e1baba8bcd84.gif)
+![preview](https://user-images.githubusercontent.com/4559753/37556223-d1236a46-2a2d-11e8-814a-e1baba8bcd84.gif)
 
+![echarts](https://user-images.githubusercontent.com/4559753/37564248-b31edf22-2acc-11e8-898f-05d38324ecde.gif)
 
 
 
