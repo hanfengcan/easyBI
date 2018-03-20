@@ -1,6 +1,10 @@
-# mdiv
+# easyBI
 
-> a component of vue that div can move and resize
+> A web project that can quickly visualize data.
+
+## mdiv
+
+> A component of vue that div can move and resize
 
 ## Build Setup
 
@@ -31,4 +35,7 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 
 # 中文说明
 
-一个让div可以在父元素内随意移动、缩放的VUE组件。
+一个可以快速实现数据可视化的web工程
+
+## 特点
+- [ ] 可配置图表类型
