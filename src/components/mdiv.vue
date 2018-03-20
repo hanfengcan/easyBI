@@ -1,13 +1,14 @@
 <template>
-  <div class="mdiv">
-    <div class="head" v-drag>
+  <div class="mdiv" v-bind:style="space">
+    <div class="head" v-drag="moveFinish">
       <div style="width: calc(100% - 50px); line-height: 30px; margin-left: 2px;">{{title}}</div>
-      <slot name="head"></slot>
     </div>
     <div class="container">
       <slot name="container"></slot>
     </div>
     <div class="resize" v-resize="resizeFinish"></div>
+    <div @click="menuClick" class="right"></div>
+    <slot name="head"></slot>
   </div>
 </template>
 
@@ -17,25 +18,49 @@ export default {
     name: {
       type: String,
       default: '未命名'
+    },
+    position: {
+      type: Object,
+      default: function () {
+        return {x: 0, y: 0, height: 400, width: 300}
+      }
+    },
+    fullScreen: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
     return {
-      title: null
+      title: null,
+      space: {
+        width: this.position.width + 'px',
+        height: this.position.height + 'px',
+        top: this.position.y + 'px',
+        left: this.position.x + 'px'
+      },
+      // 记录最新的大小和位置
+      pos: {
+        width: this.position.width,
+        height: this.position.height,
+        top: this.position.y,
+        left: this.position.x
+      }
     }
   },
   directives: {
     drag: {
-      update: function (el) {
+      update: function (el, bind) {
         // console.log(el)
         let div = el
         let translate = {x: 0, y: 0}
         div.onmousedown = function (down) {
           // 上次的位置
           let translateNew = {x: 0, y: 0}
-          translateNew.x = translate.x
-          translateNew.y = translateNew.y
-          console.log('down', translateNew)
+          // translateNew.x = translate.x
+          // translateNew.y = translateNew.y
+          Object.assign(translateNew, translate)
+          // console.log('down', translateNew)
           document.onmousemove = function (move) {
             // console.log(diff)
             // move.client 当前鼠标位置
@@ -71,9 +96,11 @@ export default {
             if (diff.bottom < 0) {
               translateNew.y = translateNew.y + diff.bottom
             }
+            div.parentElement.style.top = translateNew.y + 'px'
+            div.parentElement.style.left = translateNew.x + 'px'
             // div.parentElement.style.transform = `translate(${translateNew.x}px, ${translateNew.y}px)`
             translate = translateNew
-            console.log('up', translate)
+            bind.value(translate.y, translate.x)
             document.onmousemove = null
             document.onmouseup = null
           }
@@ -86,29 +113,74 @@ export default {
         let parent = el.parentElement
         div.onmousedown = function (down) {
           let room = parent.getBoundingClientRect()
+          let space = parent.parentElement.getBoundingClientRect()
+          let diff = {x: space.right - room.right - 2, y: space.bottom - room.bottom - 2}
+          // console.log(room, space, diff)
+          let width, height
           document.onmousemove = function (move) {
             let displacement = {x: move.clientX - down.clientX, y: move.clientY - down.clientY}
-            parent.style.height = room.height + displacement.y + 'px'
-            parent.style.width = room.width + displacement.x + 'px'
+            let x = displacement.x < diff.x ? displacement.x : diff.right
+            let y = displacement.y < diff.y ? displacement.y : diff.bottom
+            width = room.width + x
+            height = room.height + y
+            parent.style.height = height + 'px'
+            parent.style.width = width + 'px'
           }
           document.onmouseup = function (move) {
             document.onmousemove = null
             document.onmouseup = null
-            bind.value()
+            bind.value(width, height)
           }
         }
       }
     }
   },
   methods: {
-    resizeFinish () {
+    moveFinish (top, left) {
+      this.pos.top = top
+      this.pos.left = left
+    },
+    /**
+     * @param width
+     * @param height
+     */
+    resizeFinish (width = this.pos.width, height = this.pos.height) {
       this.$emit('mdiv', 'resize')
+      this.pos.height = height
+      this.pos.width = width
+    },
+    menuClick () {
+      this.$emit('mdiv', 'menu')
     }
   },
   mounted () {
     this.$nextTick(() => {
       this.title = this.name
     })
+  },
+  watch: {
+    fullScreen: function (arg) {
+      // console.log(this.$parent.$el.getBoundingClientRect())
+      if (arg === true) {
+        let parentSpace = this.$parent.$el.parentElement.getBoundingClientRect()
+        console.log(parentSpace)
+        this.$parent.$el.style.top = '0px'
+        this.$parent.$el.style.left = '0px'
+        this.$parent.$el.style.height = (parentSpace.height - 4) + 'px'
+        this.$parent.$el.style.width = (parentSpace.width - 4) + 'px'
+        setTimeout(() => {
+          this.resizeFinish()
+        }, 100)
+      } else {
+        this.$parent.$el.style.width = this.pos.width + 'px'
+        this.$parent.$el.style.height = this.pos.height + 'px'
+        this.$parent.$el.style.top = this.pos.top + 'px'
+        this.$parent.$el.style.left = this.pos.left + 'px'
+        setTimeout(() => {
+          this.resizeFinish()
+        }, 100)
+      }
+    }
   }
 }
 </script>
@@ -120,8 +192,6 @@ export default {
     position: absolute;
     min-width: 300px;
     min-height: 400px;
-    width: 300px;
-    height: 400px;
     border: 1px solid transparent;
   }
 
@@ -131,6 +201,17 @@ export default {
     background-color: #EEEEEE;
     cursor: move;
     user-select: none;
+  }
+
+  .right {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    height: 20px;
+    width: 20px;
+    /* background-color: greenyellow; */
+    cursor: pointer;
+    /* z-index: 100; */
   }
 
   .container {

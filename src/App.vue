@@ -1,21 +1,17 @@
 <template>
   <div id="app">
-    <mdiv>
-      <div slot="container" style="width: 100%; height: 100%; background-color: skyblue;"></div>
-    </mdiv>
-    <mdiv name="测试">
-      <div slot="container" style="width: 100%; height: 100%; background-color: lightblue;"></div>
-    </mdiv>
+    <pie></pie>
   </div>
 </template>
 
 <script>
-import mdiv from './components/mdiv'
+// import mdiv from './components/mdiv'
+import pie from './components/mecharts/pie'
 
 export default {
   name: 'App',
   components: {
-    mdiv
+    pie
   }
 }
 </script>
