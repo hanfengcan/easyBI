@@ -19,3 +19,16 @@ npm run build --report
 ```
 
 For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+
+
+## preview
+
+![preview](https://user-images.githubusercontent.com/4559753/37556223-d1236a46-2a2d-11e8-814a-e1baba8bcd84.gif)
+
+![echarts](https://user-images.githubusercontent.com/4559753/37564248-b31edf22-2acc-11e8-898f-05d38324ecde.gif)
+
+
+
+# 中文说明
+
+一个让div可以在父元素内随意移动、缩放的VUE组件。
