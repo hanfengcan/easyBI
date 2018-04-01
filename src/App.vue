@@ -24,12 +24,12 @@ export default {
   /* text-align: center; */
   position: relative;
   color: #2c3e50;
-  margin: 60px auto;
-  height: 90%;
-  width: 1000px;
-  border: 1px solid transparent;
-  box-shadow: 2px 2px 6px #CCCCCC;
-  border-radius: 6px;
+  margin: 0px auto;
+  height: 900px;
+  width: 1400px;
+  /* border: 1px solid transparent; */
+  /* box-shadow: 2px 2px 6px #CCCCCC; */
+  /* border-radius: 6px; */
   background-image: linear-gradient(to top, #fff1eb 0%, #ace0f9 100%);
 }
 
@@ -39,6 +39,6 @@ html {
 
 body {
   margin: 0px;
-  height: calc(100% - 60px);
+  height: calc(100%);
 }
 </style>

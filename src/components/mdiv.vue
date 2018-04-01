@@ -1,185 +1,108 @@
 <template>
-  <div class="mdiv" v-bind:style="space">
-    <div class="head" v-drag="moveFinish">
-      <div style="width: calc(100% - 50px); line-height: 30px; margin-left: 2px;">{{title}}</div>
-    </div>
+  <div class="mdiv">
+    <div class="head" @mousedown="mousedown"></div>
+    <div class="menu"><font-awesome-icon :icon="['fas', 'ellipsis-v']" /></div>
     <div class="container">
       <slot name="container"></slot>
     </div>
-    <div class="resize" v-resize="resizeFinish"></div>
-    <div @click="menuClick" class="right"></div>
-    <slot name="head"></slot>
+    <div class="resize" @mousedown="rmousedown"></div>
   </div>
 </template>
 
 <script>
+import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
 export default {
-  props: {
-    name: {
-      type: String,
-      default: '未命名'
-    },
-    position: {
-      type: Object,
-      default: function () {
-        return {x: 0, y: 0, height: 400, width: 300}
-      }
-    },
-    fullScreen: {
-      type: Boolean,
-      default: false
-    }
+  components: {
+    FontAwesomeIcon
   },
   data () {
     return {
-      title: null,
-      space: {
-        width: this.position.width + 'px',
-        height: this.position.height + 'px',
-        top: this.position.y + 'px',
-        left: this.position.x + 'px'
-      },
-      // 记录最新的大小和位置
       pos: {
-        width: this.position.width,
-        height: this.position.height,
-        top: this.position.y,
-        left: this.position.x
-      }
-    }
-  },
-  directives: {
-    drag: {
-      update: function (el, bind) {
-        // console.log(el)
-        let div = el
-        let translate = {x: 0, y: 0}
-        div.onmousedown = function (down) {
-          // 上次的位置
-          let translateNew = {x: 0, y: 0}
-          // translateNew.x = translate.x
-          // translateNew.y = translateNew.y
-          Object.assign(translateNew, translate)
-          // console.log('down', translateNew)
-          document.onmousemove = function (move) {
-            // console.log(diff)
-            // move.client 当前鼠标位置
-            // down.client 按下鼠标位置
-            // move.clientY - down.clientY 位移
-            let displacement = {x: move.clientX - down.clientX, y: move.clientY - down.clientY}
-            translateNew.x = translate.x + displacement.x
-            translateNew.y = translate.y + displacement.y
-            div.parentElement.style.top = translateNew.y + 'px'
-            div.parentElement.style.left = translateNew.x + 'px'
-            // div.parentElement.style.transform = `translate(${translateNew.x}px, ${translateNew.y}px)`
-          }
-
-          document.onmouseup = function (up) {
-            // 计算离父元素的距离,超出过贴边处理
-            let parent = el.parentElement.parentElement.getBoundingClientRect()
-            let self = el.parentElement.getBoundingClientRect()
-            let diff = {
-              left: self.left - parent.left - 2,
-              top: self.top - parent.top - 2,
-              right: parent.right - self.right - 2,
-              bottom: parent.bottom - self.bottom - 2
-            }
-            if (diff.left < 0) {
-              translateNew.x = translateNew.x - diff.left
-            }
-            if (diff.top < 0) {
-              translateNew.y = translateNew.y - diff.top
-            }
-            if (diff.right < 0) {
-              translateNew.x = translateNew.x + diff.right
-            }
-            if (diff.bottom < 0) {
-              translateNew.y = translateNew.y + diff.bottom
-            }
-            div.parentElement.style.top = translateNew.y + 'px'
-            div.parentElement.style.left = translateNew.x + 'px'
-            // div.parentElement.style.transform = `translate(${translateNew.x}px, ${translateNew.y}px)`
-            translate = translateNew
-            bind.value(translate.y, translate.x)
-            document.onmousemove = null
-            document.onmouseup = null
-          }
-        }
-      }
-    },
-    resize: {
-      update: function (el, bind) {
-        let div = el
-        let parent = el.parentElement
-        div.onmousedown = function (down) {
-          let room = parent.getBoundingClientRect()
-          let space = parent.parentElement.getBoundingClientRect()
-          let diff = {x: space.right - room.right - 2, y: space.bottom - room.bottom - 2}
-          // console.log(room, space, diff)
-          let width, height
-          document.onmousemove = function (move) {
-            let displacement = {x: move.clientX - down.clientX, y: move.clientY - down.clientY}
-            let x = displacement.x < diff.x ? displacement.x : diff.right
-            let y = displacement.y < diff.y ? displacement.y : diff.bottom
-            width = room.width + x
-            height = room.height + y
-            parent.style.height = height + 'px'
-            parent.style.width = width + 'px'
-          }
-          document.onmouseup = function (move) {
-            document.onmousemove = null
-            document.onmouseup = null
-            bind.value(width, height)
-          }
-        }
-      }
+        top: 0,
+        left: 0,
+        height: 400,
+        width: 300
+      },
+      posNew: {
+        top: 0,
+        left: 0,
+        height: 400,
+        width: 300
+      },
+      // DIV相关临时变量
+      down: null,
+      room: null
     }
   },
   methods: {
-    moveFinish (top, left) {
-      this.pos.top = top
-      this.pos.left = left
+    // 移动DIV
+    mousedown (down) {
+      this.down = down
+      document.onmousemove = this.mousemove
+      document.onmouseup = this.mouseup
     },
-    /**
-     * @param width
-     * @param height
-     */
-    resizeFinish (width = this.pos.width, height = this.pos.height) {
-      this.$emit('mdiv', 'resize')
-      this.pos.height = height
-      this.pos.width = width
+    mousemove (move) {
+      // move.client 当前鼠标位置
+      // down.client 按下鼠标位置
+      // down.clientY - down.clientY 位移
+      let diff = {x: move.clientX - this.down.clientX, y: move.clientY - this.down.clientY}
+      this.posNew.left = this.pos.left + diff.x
+      this.posNew.top = this.pos.top + diff.y
+      this.$el.style.left = this.posNew.left + 'px'
+      this.$el.style.top = this.posNew.top + 'px'
     },
-    menuClick () {
-      this.$emit('mdiv', 'menu')
-    }
-  },
-  mounted () {
-    this.$nextTick(() => {
-      this.title = this.name
-    })
-  },
-  watch: {
-    fullScreen: function (arg) {
-      // console.log(this.$parent.$el.getBoundingClientRect())
-      if (arg === true) {
-        let parentSpace = this.$parent.$el.parentElement.getBoundingClientRect()
-        console.log(parentSpace)
-        this.$parent.$el.style.top = '0px'
-        this.$parent.$el.style.left = '0px'
-        this.$parent.$el.style.height = (parentSpace.height - 4) + 'px'
-        this.$parent.$el.style.width = (parentSpace.width - 4) + 'px'
-        setTimeout(() => {
-          this.resizeFinish()
-        }, 100)
-      } else {
-        this.$parent.$el.style.width = this.pos.width + 'px'
-        this.$parent.$el.style.height = this.pos.height + 'px'
-        this.$parent.$el.style.top = this.pos.top + 'px'
-        this.$parent.$el.style.left = this.pos.left + 'px'
-        setTimeout(() => {
-          this.resizeFinish()
-        }, 100)
+    mouseup () {
+      let parent = this.$el.parentElement.getBoundingClientRect()
+      let self = this.$el.getBoundingClientRect()
+      let diff = {
+        left: self.left - parent.left - 2,
+        top: self.top - parent.top - 2,
+        right: parent.right - self.right - 2,
+        bottom: parent.bottom - self.bottom - 2
       }
+      if (diff.left < 0) {
+        this.posNew.left -= diff.left
+      }
+      if (diff.top < 0) {
+        this.posNew.top -= diff.top
+      }
+      if (diff.right < 0) {
+        this.posNew.left += diff.right
+      }
+      if (diff.bottom < 0) {
+        this.posNew.top += diff.bottom
+      }
+      this.$el.style.left = this.posNew.left + 'px'
+      this.$el.style.top = this.posNew.top + 'px'
+      // 更新位置
+      Object.assign(this.pos, this.posNew)
+      document.onmousemove = null
+      document.onmouseup = null
+    },
+    // 缩放DIV
+    rmousedown (down) {
+      this.down = down
+      this.room = this.$el.parentElement.getBoundingClientRect()
+      this.room.width = this.room.width - this.pos.width - this.pos.left - 4
+      this.room.height = this.room.height - this.pos.height - this.pos.top - 4
+      console.log(this.room)
+      document.onmouseup = this.rmouseup
+      document.onmousemove = this.rmousemove
+    },
+    rmousemove (move) {
+      let diff = {x: move.clientX - this.down.clientX, y: move.clientY - this.down.clientY}
+      let x = diff.x < this.room.width ? diff.x : this.room.width
+      let y = diff.y < this.room.height ? diff.y : this.room.height
+      this.posNew.width = this.pos.width + x
+      this.posNew.height = this.pos.height + y
+      this.$el.style.width = this.posNew.width + 'px'
+      this.$el.style.height = this.posNew.height + 'px'
+    },
+    rmouseup () {
+      document.onmousemove = null
+      document.onmouseup = null
+      // 更新大小
+      Object.assign(this.pos, this.posNew)
     }
   }
 }
@@ -187,31 +110,23 @@ export default {
 
 <style scoped>
   .mdiv {
+    position: relative;
     float: left;
-    overflow: hidden;
-    position: absolute;
     min-width: 300px;
     min-height: 400px;
-    border: 1px solid transparent;
+    background: white;
+    border: 1px solid rgb(201, 208, 219);
+    border-radius: 4px;
+    border-bottom-right-radius: 0px;
+    box-shadow: 2px 2px 6px #646464;
   }
 
   .head {
-    position: relative;
+    float: left;
     height: 30px;
-    background-color: #EEEEEE;
+    width: calc(100% - 30px);
+    background: whitesmoke;
     cursor: move;
-    user-select: none;
-  }
-
-  .right {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    height: 20px;
-    width: 20px;
-    /* background-color: greenyellow; */
-    cursor: pointer;
-    /* z-index: 100; */
   }
 
   .container {
@@ -221,13 +136,23 @@ export default {
     width: 100%
   }
 
+  .menu {
+    float: left;
+    height: 16px;
+    width: 30px;
+    text-align: center;
+    padding: 7px 0px;
+    background: whitesmoke;
+    cursor: pointer;
+  }
+
   .resize {
     position: absolute;
     right: 0px;
     bottom: 0px;
     width: 0px;
     height: 0px;
-    border-bottom: 8px solid rgba(108, 118, 131, 0.5);;
+    border-bottom: 8px solid rgba(0, 0, 0, 0.5);
     border-left: 8px solid transparent;
     cursor: nw-resize;
   }

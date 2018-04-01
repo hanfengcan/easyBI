@@ -39,3 +39,14 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 
 ## 特点
 - [ ] 可配置图表类型
+
+
+## API
+
+#### mdiv
+  - name 
+    - String 标题名称
+  - position 
+    - { x, y, width, height } 位置大小
+  - fullScreen
+    - Boolean 全屏
