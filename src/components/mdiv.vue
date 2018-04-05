@@ -1,33 +1,49 @@
 <template>
   <div class="mdiv">
     <div class="head" @mousedown="mousedown"></div>
-    <div class="menu"><font-awesome-icon :icon="['fas', 'ellipsis-v']" /></div>
-    <div class="container">
-      <slot name="container"></slot>
+    <div class="menu">
+      <div style="float: right; margin: 0 7px" @click="menuClick">
+        <span class="fas fa-ellipsis-v" v-show="isedit"></span>
+      </div>
+      <div style="float: right; margin: 0 3px"  @click="expand">
+        <span class="fas" v-bind:class="{ 'fa-expand': !isexpand, 'fa-compress': isexpand }"></span>
+      </div>
+      <slot name="contextmenu"></slot>
     </div>
+    <slot name="container"></slot>
     <div class="resize" @mousedown="rmousedown"></div>
   </div>
 </template>
 
 <script>
-import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
+// import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
 export default {
-  components: {
-    FontAwesomeIcon
+  props: {
+    // [X, Y, W, H]
+    outline: {
+      type: Array,
+      required: true
+    },
+    isedit: {
+      type: Boolean,
+      default: false
+    }
   },
   data () {
     return {
+      isexpand: false,
+      // 空间位置相关
       pos: {
-        top: 0,
-        left: 0,
-        height: 400,
-        width: 300
+        left: this.outline[0],
+        top: this.outline[1],
+        height: this.outline[2],
+        width: this.outline[3]
       },
       posNew: {
-        top: 0,
-        left: 0,
-        height: 400,
-        width: 300
+        left: this.outline[0],
+        top: this.outline[1],
+        height: this.outline[2],
+        width: this.outline[3]
       },
       // DIV相关临时变量
       down: null,
@@ -35,6 +51,37 @@ export default {
     }
   },
   methods: {
+    expand () {
+      this.isexpand = !this.isexpand
+      if (this.isexpand) { // isexpand === true 变全屏
+        this.$el.style.left = '1px'
+        this.$el.style.top = '1px'
+        this.$el.style.height = 'calc(100% - 2px)'
+        this.$el.style.width = 'calc(100% - 2px)'
+      } else {
+        this.$el.style.left = this.pos.left + 'px'
+        this.$el.style.top = this.pos.top + 'px'
+        this.$el.style.width = this.pos.width + 'px'
+        this.$el.style.height = this.pos.height + 'px'
+      }
+    },
+    menuClick () {
+      this.$emit('mdiv', 'menu')
+    },
+    outlineUpdate () {
+      let room = this.$el.parentElement.getBoundingClientRect()
+
+      let left = this.outline[0] > room.right ? room.right - 2 : this.outline[0]
+      let top = this.outline[1] > room.top ? room.top - 2 : this.outline[1]
+      let width = this.outline[0] + this.outline[2] // x + width
+      let height = this.outline[1] + this.outline[3] // y + height
+      width = width < room.width ? width : room.width - this.outline[0] - 4
+      height = height < room.height ? height : room.height - this.outline[1] - 4
+      this.$el.style.height = height + 'px'
+      this.$el.style.width = width + 'px'
+      this.$el.style.left = left + 'px'
+      this.$el.style.top = top + 'px'
+    },
     // 移动DIV
     mousedown (down) {
       this.down = down
@@ -103,7 +150,28 @@ export default {
       document.onmouseup = null
       // 更新大小
       Object.assign(this.pos, this.posNew)
+      this.$emit('mdiv', 'resize')
     }
+  },
+  watch: {
+    outline () {
+      this.outlineUpdate()
+      this.pos = {
+        left: this.outline[0],
+        top: this.outline[1],
+        height: this.outline[2],
+        width: this.outline[3]
+      }
+      this.$emit('mdiv', 'resize')
+    }
+  },
+  mounted () {
+    this.$nextTick(() => {
+      this.$el.style.left = this.outline[0] + 'px' // x
+      this.$el.style.top = this.outline[1] + 'px' // y
+      this.$el.style.width = this.outline[2] + 'px' // w
+      this.$el.style.height = this.outline[3] + 'px' // h
+    })
   }
 }
 </script>
@@ -124,12 +192,14 @@ export default {
   .head {
     float: left;
     height: 30px;
-    width: calc(100% - 30px);
+    width: calc(100% - 40px);
     background: whitesmoke;
     cursor: move;
+    z-index: 10;
   }
 
   .container {
+    float: left;
     min-height: calc(100% - 30px);
     min-width: 300px;
     height: calc(100% - 30px);
@@ -137,13 +207,24 @@ export default {
   }
 
   .menu {
+    position: relative;
     float: left;
     height: 16px;
-    width: 30px;
+    width: 40px;
     text-align: center;
     padding: 7px 0px;
     background: whitesmoke;
     cursor: pointer;
+  }
+  .menu span:hover {
+    color: darkseagreen;
+  }
+  .contextmenu {
+    position: absolute;
+    width: 20px;
+    top: 31px;
+    right: 0px;
+    z-index: 10;
   }
 
   .resize {

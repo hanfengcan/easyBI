@@ -3,12 +3,7 @@
 import Vue from 'vue'
 import App from './App'
 
-import fontawesome from '@fortawesome/fontawesome'
-// import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner'
-import '@fortawesome/fontawesome-free-solid/'
-
-// fontawesome.library.add(fontawesomesolid)
-Vue.use(fontawesome)
+import './assets/web-fonts-with-css/css/fontawesome-all.css'
 
 Vue.config.productionTip = false
 

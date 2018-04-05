@@ -1,9 +1,9 @@
 <template>
-  <mdiv @mdiv='resize' :fullScreen="fullScreen" :position="{x: 10, y: 10, width: 350, height: 600}">
-    <div slot="container" style="height: 100%" ref="pie"></div>
-    <div slot="head" class="menu" v-bind:class="{hide: ishid, show: !ishid}">
-      <div class="menuItem" @click="menuItem(0)">切换</div>
-      <div class="menuItem" @click="menuItem(1)">设置</div>
+  <mdiv @mdiv='resize' :outline="outline" :isedit="isedit">
+    <div slot="container" class="container" ref="pie"></div>
+    <div slot="contextmenu" class="contextmenu" v-show="ishid && isedit">
+      <span class="fas fa-edit fa-fw"></span>
+      <span class="fas fa-trash-alt fa-fw"></span>
     </div>
   </mdiv>
 </template>
@@ -19,7 +19,8 @@ export default {
   data () {
     return {
       ishid: false,
-      fullScreen: false,
+      isedit: true,
+      outline: [10, 50, 400, 400],
       e: null,
       option: {
         legend: {},
@@ -45,12 +46,6 @@ export default {
       } else if (arg === 'menu') {
         this.ishid = !this.ishid
       }
-    },
-    menuItem (arg) {
-      console.log(arg)
-      if (arg === 0) {
-        this.fullScreen = !this.fullScreen
-      }
     }
   },
   mounted () {
@@ -63,27 +58,5 @@ export default {
 </script>
 
 <style scoped>
-  .menu {
-    position: absolute;
-    top: 30px;
-    right: 0px;
-    text-align: right;
-    z-index: 10;
-  }
 
-  .hide {
-    display: none;
-  }
-
-  .menuItem {
-    /* width: 30px; */
-    height: 20px;
-    line-height: 20px;
-    background-color: #EEEEEE;
-    cursor: auto;
-  }
-
-  .menuItem:hover {
-    background-color: white;
-  }
 </style>
