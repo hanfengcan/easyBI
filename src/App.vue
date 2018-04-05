@@ -25,8 +25,8 @@ export default {
   position: relative;
   color: #2c3e50;
   margin: 0px auto;
-  height: 900px;
-  width: 1400px;
+  height: 600px;
+  width: 800px;
   /* border: 1px solid transparent; */
   /* box-shadow: 2px 2px 6px #CCCCCC; */
   /* border-radius: 6px; */
@@ -38,7 +38,7 @@ html {
 }
 
 body {
-  margin: 0px;
-  height: calc(100%);
+  margin-top: 10px;
+  height: calc(100% - 18px);
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div class="mdiv">
-    <div class="head" @mousedown="mousedown"></div>
+    <div class="head" @mousedown="mousedown">{{ title }}</div>
     <div class="menu">
       <div style="float: right; margin: 0 7px" @click="menuClick">
         <span class="fas fa-ellipsis-v" v-show="isedit"></span>
@@ -19,6 +19,10 @@
 // import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
 export default {
   props: {
+    name: {
+      type: String,
+      required: true
+    },
     // [X, Y, W, H]
     outline: {
       type: Array,
@@ -165,6 +169,11 @@ export default {
       this.$emit('mdiv', 'resize')
     }
   },
+  computed: {
+    title () {
+      return this.name
+    }
+  },
   mounted () {
     this.$nextTick(() => {
       this.$el.style.left = this.outline[0] + 'px' // x
@@ -192,7 +201,9 @@ export default {
   .head {
     float: left;
     height: 30px;
-    width: calc(100% - 40px);
+    padding-left: 5px;
+    line-height: 30px;
+    width: calc(100% - 45px);
     background: whitesmoke;
     cursor: move;
     z-index: 10;

@@ -1,5 +1,5 @@
 <template>
-  <mdiv @mdiv='resize' :outline="outline" :isedit="isedit">
+  <mdiv @mdiv='resize' :outline="outline" :isedit="isedit" :name="name">
     <div slot="container" class="container" ref="pie"></div>
     <div slot="contextmenu" class="contextmenu" v-show="ishid && isedit">
       <span class="fas fa-edit fa-fw"></span>
@@ -21,6 +21,7 @@ export default {
       ishid: false,
       isedit: true,
       outline: [10, 50, 400, 400],
+      name: '测试',
       e: null,
       option: {
         legend: {},

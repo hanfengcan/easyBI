@@ -27,9 +27,7 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 
 ## preview
 
-![preview](https://user-images.githubusercontent.com/4559753/37556223-d1236a46-2a2d-11e8-814a-e1baba8bcd84.gif)
-
-![echarts](https://user-images.githubusercontent.com/4559753/37564248-b31edf22-2acc-11e8-898f-05d38324ecde.gif)
+![preview](https://user-images.githubusercontent.com/4559753/38361971-c4d1ad6a-3901-11e8-8326-34f0df40258f.gif)
 
 
 
@@ -46,7 +44,7 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 #### mdiv
   - name 
     - String 标题名称
-  - position 
-    - { x, y, width, height } 位置大小
-  - fullScreen
-    - Boolean 全屏
+  - outline 
+    - [x, y, w, h]
+  - isedit
+    - Boolean
